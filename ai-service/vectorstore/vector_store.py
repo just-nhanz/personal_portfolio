@@ -1,7 +1,6 @@
 import chromadb
-from chromadb.config import Settings
-from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_chroma import Chroma          # ← đổi import
+from langchain_huggingface import HuggingFaceEmbeddings  # ← đổi import
 import os
 
 CHROMA_PATH = os.getenv("CHROMA_PATH", "./vectorstore/chroma_db")
@@ -21,7 +20,7 @@ def get_or_create_store(documents=None) -> Chroma:
             embedding=embeddings,
             persist_directory=CHROMA_PATH,
         )
-        store.persist()
+        # Bỏ store.persist() — ChromaDB 0.4.x+ tự persist
         return store
     return Chroma(
         persist_directory=CHROMA_PATH,
