@@ -1,18 +1,24 @@
-FROM node:20-alpine AS builder
-WORKDIR /app
-RUN apk add --no-cache openssl openssl-dev
-COPY package*.json ./
-RUN npm ci --legacy-peer-deps
-COPY . .
-RUN npx prisma generate
-RUN npm run build
-
 FROM node:20-alpine
 WORKDIR /app
-RUN apk add --no-cache openssl
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-COPY prisma ./prisma
+
+# Cài OpenSSL
+RUN apk add --no-cache openssl openssl-dev
+
+# Cài dependencies (bao gồm devDeps để build TS)
+COPY package*.json ./
+RUN npm install
+
+# Copy toàn bộ source
+COPY . .
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Build TypeScript → dist/
+RUN npm run build
+
+# Kiểm tra build thành công
+RUN ls -la dist/
+
 EXPOSE 4000
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+CMD ["sh", "-c", "npx prisma db push && node dist/index.js"]

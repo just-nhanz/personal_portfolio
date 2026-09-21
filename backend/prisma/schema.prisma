@@ -15,7 +15,7 @@ model Project {
   type        String
   icon        String   @default("🚀")
   visualCls   String   @default("pv-ml")
-  stack       Json     // [{ label, cls }]
+  stack       Json
   github      String?
   demo        String?
   featured    Boolean  @default(false)
